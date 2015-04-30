@@ -8,7 +8,8 @@ class Config
 
     static public function readConfig($config)
     {
-        self::readModules($config);
+        $configmodule = self::readModules($config);
+
         
         $globalFile = ROOT_PATH.'/configs/global.php';
         $localFile = ROOT_PATH.'/configs/local.php';
@@ -22,12 +23,16 @@ class Config
             $localFile = include $localFile;
             $config = array_merge($globalFile,$localFile);
             
+            
+            $config['Module']=$configmodule;
             self::$config = $config;
             return $config;        
         }
         else
         {
             $globalFile = include $globalFile;
+            
+            $globalFile['Module']=$configmodule;
             self::$config = $globalFile;
             return $globalFile;
         } 
@@ -36,24 +41,31 @@ class Config
     static function readModules($config)
     {
         $config = include ($config);
-        echo "<pre>";
-        print_r($config);
-        echo "</pre>";
+        
+        
+        $configmodule=[];
         
            foreach ($config as $module)
            {
-               $globalfile = ROOT_PATH."/configs/autoload/".$module.".global.php";
-               if(file_exists($globalfile))
-                   $globalfile = include (ROOT_PATH."/configs/autoload/".$module.".global.php");
+                $globalfile = ROOT_PATH."/configs/autoload/".$module.".global.php";
+                if(file_exists($globalfile))
+                    $globalfile = include (ROOT_PATH."/configs/autoload/".$module.".global.php");
                
-               $localfile = include (ROOT_PATH."/configs/autoload/".$module.".local.php");
+                $localfile = ROOT_PATH."/configs/autoload/".$module.".local.php";
+                if(file_exists($localfile))
+                    $localfile = include (ROOT_PATH."/configs/autoload/".$module.".local.php");
                
-               echo "<pre>";
-               print_r($configmodule);
-               echo "</pre>";
+      
+                if(is_array($localfile))
+                    $configmodule[$module] = array_merge($globalfile,$localfile);
+                else if(is_array($globalfile))
+                    $configmodule[$module] = $globalfile;
                
                
+                
            }
+           
+           return $configmodule;
     }
 
 }

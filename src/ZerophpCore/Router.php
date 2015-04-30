@@ -126,7 +126,8 @@ class Router
         }
         
         $array = array_merge($router, $arraySalida);
-//         echo "<pre>arraySalida: ";
+        
+//         echo "<pre>request: ";
 //         print_r($array);
 //         echo "</pre>";
     
